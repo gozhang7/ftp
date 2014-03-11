@@ -1,6 +1,6 @@
 package controllers;
 
-import models.User;
+import models.*;
 import play.*;
 import play.data.*;
 import play.mvc.*;
@@ -10,11 +10,8 @@ import static play.data.Form.*;
 
 
 public class Application extends Controller {
-
-	public static Result index() {
-		Server server = new Server();
-		return ok(index.render(server.pwd()));
-	}
+	
+	protected static String rootPath = "/home/ftp";
 
 	public static Result login() {
 		return ok(login.render(form(Login.class)));
@@ -22,7 +19,25 @@ public class Application extends Controller {
 	
 	public static Result authenticate() {
 	    Form<Login> loginForm = form(Login.class).bindFromRequest();
-	    return ok();
+	    
+	    if (loginForm.hasErrors()) {
+	        return badRequest(login.render(loginForm));
+	    } else {
+	    	String currentUserEmail = loginForm.get().email;
+	        session().clear();
+	        session("email", currentUserEmail);
+	        String prefix = rootPath + "/" + User.find.where().eq("email", currentUserEmail).findUnique().name + "-" + currentUserEmail;
+	        Server serverInstance = new Server(prefix);
+	        return ok(index.render(prefix));
+	    }
+	}
+	
+	public static Result guest() {
+		return ok(index.render("Welcome!"));
+	}
+	
+	public static Result register() {
+		return ok(index.render("Under constructing!"));
 	}
 
 	public static class Login {

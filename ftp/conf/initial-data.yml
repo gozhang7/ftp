@@ -1,0 +1,24 @@
+
+# Users
+
+users:
+
+    - !!models.User
+        email:      test@test.com
+        name:       test Test
+        password:   test
+    
+    - !!models.User
+        email:      maxime@sample.com
+        name:       Maxime Dantec
+        password:   secret
+    
+    - !!models.User
+        email:      sadek@sample.com
+        name:       Sadek Drobi
+        password:   secret
+    
+    - !!models.User
+        email:      erwan@sample.com
+        name:       Erwan Loisant
+        password:   secret
