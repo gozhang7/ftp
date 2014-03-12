@@ -17,6 +17,10 @@ public class Application extends Controller {
 		return ok(login.render(form(Login.class)));
 	}
 	
+	public static Result logout() {
+		return ok();
+	}
+	
 	public static Result authenticate() {
 	    Form<Login> loginForm = form(Login.class).bindFromRequest();
 	    

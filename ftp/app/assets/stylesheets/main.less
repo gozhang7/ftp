@@ -1,27 +1,24 @@
+@import 'libs/_reset.less';
+@import 'libs/_mate.less';
+@import 'libs/_theme.less';
+
 html {
     height: 100%;
 }
 body {
-    font: 12px/18px Arial, sans-serif;
     height: 100%;
+    background: @mainBackground;
+    color: @mainColor;
+    font: @defaultFont;
+    -webkit-font-smoothing: antialised;
+    -webkit-user-select: none;
 }
 #wrapper {
-    min-width: 1000px;
-    max-width: 1200px;
     min-height: 100%;
     height: auto !important;
     height: 100%;
     margin: 0 auto -100px;
 }
-
-
-/* Header
------------------------------------------------------------------------------*/
-#header {
-    height: 150px;
-    background: #FFE680;
-}
-
 
 /* Middle
 -----------------------------------------------------------------------------*/
@@ -44,31 +41,21 @@ body {
     padding: 0 0 0 270px;
 }
 
-
-/* Left Sidebar
------------------------------------------------------------------------------*/
-#left-sidebar {
-    float: left;
-    width: 250px;
-    margin-left: -100%;
-    position: relative;
-    background: #B5E3FF;
-}
-
-
 /* Footer
 -----------------------------------------------------------------------------*/
 #footer {
-    height: 100px;
-    min-width: 1000px;
-    max-width: 1200px;
+    height: 50px;
     position: relative;
-    background: #BFF08E;
     margin: 0 auto;
-    border: 1px solid #4C3C1B;
 }
 
 #push {
     height: 100px;
     clear: both;
 }
+
+@import 'main/_layout.less';        // General grid
+@import 'main/_widgets.less';       // Some shared elements
+@import 'main/_drawer.less';        // Project drawer
+@import 'main/_header.less';        // Top header + User bar
+@import 'main/_breadcrumb.less';    // Breadcrumb + App menu

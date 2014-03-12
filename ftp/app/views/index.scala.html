@@ -1,15 +1,12 @@
 @(message: String)
 
 @main("FTP V1.0") {
-    
+		@header()    
     	<div id="wrapper">
-    		@header()
     		<div id="middle">
     			@content(message)
-    			@left()
     		</div>
     		<div id="push"></div>
 		</div>
     	@footer()
-
 }
