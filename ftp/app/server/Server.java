@@ -1,23 +1,15 @@
 package server;
 
+import interfaces.IServer;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.Enumeration;
 import java.util.Stack;
-import java.util.logging.Logger;
-
-import Interface.IServer;
+import play.Logger;
 
 
 
@@ -28,29 +20,26 @@ import Interface.IServer;
 public class Server implements IServer
 {
 
-	static int counter = 0;
+	private static int counter = 0;
 
 	static final long serialVersionUID = 0L;
 
 	static final int OperationFailed = -8;
-	static final int DirAlreadyExists = -7;
 	static final int TargetCantBeAccessed = -6;
 	static final int NotADirectory = -5;
-	static final int NoSuchDirectory = -4;
 	static final int AlreadyInRoot = -3;
-	static final int FileNotFound = -2;
-	static final int FileAlreadyExists = -1;
+	static final int TargetNotFound = -2;
+	static final int TargetAlreadyExists = -1;
 	static final int OK = 0;
 
-	public static Logger log = Logger
-			.getLogger("gzhang.ftp.server");
+	private Logger logger;
 
 	/*
 	 * ********************************************************************************************
 	 * Current working directory.
 	 */
 	static final int MAX_PATH_LEN = 1024;
-	private Stack<String> cwd = new Stack<String>();
+	private Stack<String> currentWorkingDir = new Stack<String>();
 
 
 	/*
@@ -59,20 +48,28 @@ public class Server implements IServer
 	 */
 	private final String pathPrefix;
 
-	public Server(String prefix)
+	public Server(String prefix, Logger logger) throws IOException
 	{
 		this.pathPrefix = prefix + "/";
-
-		log.info("Client " + counter + " has bound to a server instance.");
+		this.logger = logger;
+		
+		if(validPrefix() == TargetNotFound)
+			makeDirectory(pathPrefix);
+		Logger.info("Client " + getUserNameFromPrefix() + " has bound to a server instance.");
 		counter++;
 	}
 	
-	public Server()
-	{
-		pathPrefix = null;
+	public String getUserNameFromPrefix() {
+		String res;
 		
-		log.info("Client " + counter + " has bound to a server instance.");
-		counter++;
+		String[] arr = this.pathPrefix.split("/");
+		res = arr[arr.length - 1];
+		
+		return res;
+	}
+	
+	public int validPrefix() throws FileNotFoundException, IOException {
+		return checkTargetExistsOrNot(pathPrefix);
 	}
 
 	//For security concern, a file`s name can not contain "/"
@@ -83,7 +80,7 @@ public class Server implements IServer
 	}
 
 	//A thread for upload file
-	private static class GetInputThread implements Runnable
+	private class GetInputThread implements Runnable
 	{
 		public void run()
 		{
@@ -93,13 +90,12 @@ public class Server implements IServer
 			
 			} catch (Exception e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Logger.error(e.getMessage());
 			}
 		}
 	}
 
-	private static class GetOutputThread implements Runnable
+	private class GetOutputThread implements Runnable
 	{
 
 		public void run()
@@ -110,8 +106,7 @@ public class Server implements IServer
 
 			} catch (Exception e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Logger.error(e.getMessage());
 			}
 		}
 	}
@@ -123,7 +118,7 @@ public class Server implements IServer
 	}
 
 	@Override
-	public long GetFileSize(String f) throws IOException, FileNotFoundException
+	public long getFileSize(String f) throws IOException, FileNotFoundException
 	{
 		long fileSize = -1;
 
@@ -139,7 +134,7 @@ public class Server implements IServer
 				in.close();
 			} catch (FileNotFoundException e)
 			{
-				return FileNotFound;
+				return TargetNotFound;
 			}
 		}
 
@@ -169,8 +164,8 @@ public class Server implements IServer
 		{
 			if ("..".equals(dir))
 			{
-				if (cwd.size() > 0)
-					cwd.pop();
+				if (currentWorkingDir.size() > 0)
+					currentWorkingDir.pop();
 				else
 					return AlreadyInRoot;
 			} else if (".".equals(dir))
@@ -180,11 +175,11 @@ public class Server implements IServer
 			{
 				File f = new File(path() + dir);
 				if (!f.exists())
-					return NoSuchDirectory;
+					return TargetNotFound;
 				else if (!f.isDirectory())
 					return NotADirectory;
 				else
-					cwd.push(dir);
+					currentWorkingDir.push(dir);
 			}
 		}
 
@@ -195,7 +190,7 @@ public class Server implements IServer
 	{
 		// List the current working directory.
 		String p = "/";
-		for (Enumeration<String> e = cwd.elements(); e.hasMoreElements();)
+		for (Enumeration<String> e = currentWorkingDir.elements(); e.hasMoreElements();)
 		{
 			p = p + e.nextElement() + "/";
 		}
@@ -208,42 +203,26 @@ public class Server implements IServer
 		return pathPrefix + pwd();
 	}
 
-	static void msg(String m)
-	{
-		System.out.print(m);
-	}
-
-	static void msgln(String m)
-	{
-		System.out.println(m);
-	}
-
-	static void err(Exception e)
-	{
-		System.err.println("Error : " + e);
-		e.printStackTrace();
-	}
-
 	@Override
-	public int CheckFileStatus(String f) throws IOException, FileNotFoundException
+	public int checkTargetExistsOrNot(String f) throws IOException, FileNotFoundException
 	{
 		File targetFile = new File(path() + f);
 
 		if (targetFile.exists())
-			return FileAlreadyExists;
+			return TargetAlreadyExists;
 
-		return FileNotFound;
+		return TargetNotFound;
 	}
 
 	@Override
-	public int MakeDirectory(String name) throws IOException
+	public int makeDirectory(String name) throws IOException
 	{
 		if (valid(name))
 		{
 			File file = new File(path() + name);
 
 			if (file.exists())
-				return DirAlreadyExists;
+				return TargetAlreadyExists;
 			else
 			{
 				if (!file.mkdir())
@@ -256,17 +235,17 @@ public class Server implements IServer
 	}
 
 	@Override
-	public int Rm(String[] inputs) throws IOException, RemoteException
+	public int rm(String[] inputs) throws IOException, RemoteException
 	{
 
 			if (valid(inputs[1]))
 			{
 				File file = new File(path() + inputs[1]);
 
-				int res = CheckFileStatus(inputs[1]);
-				if (res == FileNotFound)
-					return FileNotFound;
-				else if (res == FileAlreadyExists)
+				int res = checkTargetExistsOrNot(inputs[1]);
+				if (res == TargetNotFound)
+					return TargetNotFound;
+				else if (res == TargetAlreadyExists)
 					if (file.isDirectory())
 						return NotADirectory;
 					else if (!file.delete())
@@ -278,18 +257,18 @@ public class Server implements IServer
 	}
 
 	@Override
-	public int Mv(String[] inputs) throws IOException, RemoteException
+	public int mv(String[] inputs) throws IOException, RemoteException
 	{
 			String srcFile = inputs[1];
 			String tagFile = inputs[2];
 			
-			if(CheckFileStatus(srcFile) == FileNotFound)
+			if(checkTargetExistsOrNot(srcFile) == TargetNotFound)
 			{
-				return FileNotFound;
+				return TargetNotFound;
 			}
-			else if(CheckFileStatus(tagFile) == FileAlreadyExists)
+			else if(checkTargetExistsOrNot(tagFile) == TargetAlreadyExists)
 			{
-				return FileAlreadyExists;
+				return TargetAlreadyExists;
 			}
 			else 
 			{

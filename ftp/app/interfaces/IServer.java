@@ -1,4 +1,4 @@
-package Interface;
+package interfaces;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,9 +10,9 @@ public interface IServer extends Remote {
 
 	public void get(String f) throws IOException, FileNotFoundException;
 	
-	public long GetFileSize(String f) throws IOException, FileNotFoundException;
+	public long getFileSize(String f) throws IOException, FileNotFoundException;
 	
-	public int CheckFileStatus(String f) throws IOException, FileNotFoundException;
+	public int checkTargetExistsOrNot(String f) throws IOException, FileNotFoundException;
 
 	public int put(String[] args) throws IOException, FileNotFoundException;
 
@@ -24,10 +24,10 @@ public interface IServer extends Remote {
 	
 	public String[] dirl();
 	
-	public int MakeDirectory(String name) throws IOException;
+	public int makeDirectory(String name) throws IOException;
 	
-	public int Rm(String[] inputs) throws IOException;
+	public int rm(String[] inputs) throws IOException;
 	
-	public int Mv(String[] inptus) throws IOException;
+	public int mv(String[] inptus) throws IOException;
 
 }

@@ -1,5 +1,8 @@
 package controllers;
 
+import java.io.IOException;
+import play.Logger;
+
 import models.*;
 import play.*;
 import play.data.*;
@@ -11,14 +14,16 @@ import static play.data.Form.*;
 
 public class Application extends Controller {
 	
-	protected static String rootPath = "/home/ftp";
+	protected static String rootPath = "/Users/zg/FTPROOT";
+	
+	static private Logger logger;
 
 	public static Result login() {
 		return ok(login.render(form(Login.class)));
 	}
 	
 	public static Result logout() {
-		return ok();
+		return ok(login.render(form(Login.class)));
 	}
 	
 	public static Result authenticate() {
@@ -27,12 +32,26 @@ public class Application extends Controller {
 	    if (loginForm.hasErrors()) {
 	        return badRequest(login.render(loginForm));
 	    } else {
+	    	Server serverInstance = null;
 	    	String currentUserEmail = loginForm.get().email;
 	        session().clear();
 	        session("email", currentUserEmail);
 	        String prefix = rootPath + "/" + User.find.where().eq("email", currentUserEmail).findUnique().name + "-" + currentUserEmail;
-	        Server serverInstance = new Server(prefix);
-	        return ok(index.render(prefix));
+	        logger = new Logger();
+	        try {
+				 serverInstance = new Server(prefix, logger);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    
+	        if(serverInstance == null)
+	        	return internalServerError("Opps, something is broken!");
+	        else {
+	        	String tmp = (serverInstance.dir())[0];
+	        	return ok(index.render(tmp));
+	        }
+	        	
 	    }
 	}
 	

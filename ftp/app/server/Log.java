@@ -22,4 +22,20 @@ public class Log
 	public void info(String s) {
 		log.info(s);
 	}
+	
+	public void msg(String m)
+	{
+		System.out.print(m);
+	}
+
+	public void msgln(String m)
+	{
+		System.out.println(m);
+	}
+
+	public void err(Exception e)
+	{
+		System.err.println("Error : " + e);
+		e.printStackTrace();
+	}
 }
