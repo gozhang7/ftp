@@ -41,16 +41,12 @@ public class Application extends Controller {
 	        try {
 				 serverInstance = new Server(prefix, logger);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				String errorMessage = "Opps, something is broken!\n"+ e.getMessage();
+				return internalServerError(errorMessage);
 			}
 	    
-	        if(serverInstance == null)
-	        	return internalServerError("Opps, something is broken!");
-	        else {
-	        	String tmp = (serverInstance.dir())[0];
-	        	return ok(index.render(tmp));
-	        }
+        	String[] dirList = serverInstance.dir();
+        	return ok(index.render(dirList, serverInstance.dirl()));
 	        	
 	    }
 	}

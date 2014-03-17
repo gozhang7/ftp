@@ -1,7 +1,7 @@
-@(message: String)
+@(dirList: List[String], message: List[String])
 
 @main("FTP V1.0") {
-		@header()   
+		@header(dirList)   
  	    <section id="main">
             @message
         </section>
