@@ -2,6 +2,9 @@
 @import 'libs/_mate.less';
 @import 'libs/_theme.less';
 
+html {
+    height: 100%;
+}
 body {
     height: 100%;
     background: @mainBackground;
@@ -16,4 +19,3 @@ body {
 @import 'main/_drawer.less';        // Project drawer
 @import 'main/_header.less';        // Top header + User bar
 @import 'main/_breadcrumb.less';    // Breadcrumb + App menu
-@import 'apps/_file.less';         // The css file to describe a detialed file item 

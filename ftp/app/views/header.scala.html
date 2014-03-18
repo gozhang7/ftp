@@ -1,6 +1,7 @@
+@(pwd: String)
 <header id="header">
-	<span><em><font color="white">FTPService</font></em></span>
-	<dl id="user">
+    <span><em><font color="white">FTPService</font></em></span>
+    <dl id="user">
                 <dt>user.name <span>(user.email)</span></dt>
                 <dd>
                     <a href="@controllers.Application.logout()">Logout</a>
@@ -8,8 +9,15 @@
     </dl>
 </header>
 <nav>
+    <h4 class="dashboard"><a href="#/">Home</a></h4>
     <ul id="folders">
-        
+        <li>root</li>
+        @{
+            val paths = pwd.split("/");
+            for(path <- paths) {
+                <li>path</li>
+            }
+        }
     </ul>
     <button id="newFolder">New Folder</button>
 </nav>

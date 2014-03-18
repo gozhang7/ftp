@@ -1,0 +1,17 @@
+@(dir: String)
+
+<li>
+    <span class="toggle"></span>
+    <h4 class="groupName">@dir</h4>
+    <span class="loader">Loading</span>
+    <dl class="options">
+        <dt>Options</dt>
+        <dd>
+            <button class="newProject">New project</button>
+            <button class="deleteGroup">Remove group</button>
+        </dd>
+    </dl>
+    <ul>
+        @dir
+    </ul>
+</li>
