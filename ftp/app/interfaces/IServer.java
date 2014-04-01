@@ -22,12 +22,14 @@ public interface IServer extends Remote {
 
 	public String[] dir();
 	
-	public String[] dirl();
+	public String[] dirl() throws IOException;
 	
 	public int makeDirectory(String name) throws IOException;
 	
 	public int rm(String[] inputs) throws IOException;
 	
 	public int mv(String[] inptus) throws IOException;
+	
+	public int createUserDirectory(String name) throws IOException;
 
 }

@@ -1,3 +1,4 @@
+@(dirList: List[String])
 <header id="header">
 	<span><em><font color="white">FTPService</font></em></span>
 	<dl id="user">
@@ -9,7 +10,11 @@
 </header>
 <nav>
     <ul id="folders">
-        
+        @dirList.groupBy(_).map {
+            	case (group, projects) => {
+            	@views.html.group(group, projects)
+        	}
+        }
     </ul>
     <button id="newFolder">New Folder</button>
 </nav>
