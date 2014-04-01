@@ -15,8 +15,8 @@ import play.mvc.*;
 import server.Server;
 
 import views.html.*;
-import static play.data.Form.*;
 
+import static play.data.Form.*;
 
 public class Application extends Controller {
 
@@ -45,6 +45,7 @@ public class Application extends Controller {
 							.findUnique().name + "-" + currentUserEmail;
 			try {
 				serverInstance = new Server(currentUserEmail, prefix);
+<<<<<<< HEAD
 				serverInstance.save();
 			} catch (Exception e) {
 				String errorMessage = "Opps, something is broken!\n"
@@ -54,6 +55,23 @@ public class Application extends Controller {
 			String pwd = serverInstance.pwd();
 			String[] dirDetialList = serverInstance.dirl();
 			return ok(index.render(pwd, dirDetialList));
+=======
+			} catch (Exception e) {
+				String errorMessage = "Opps, something is broken!\n"
+						+ "ERROR message: " + e.getMessage() + "\n";
+				return internalServerError(errorMessage);
+			}
+			String pwd = serverInstance.pwd();
+			String[] fileLists;
+			try {
+				fileLists = serverInstance.dirl();
+			} catch (IOException e) {
+				String errorMessage = "Opps, something is broken!\n"
+						+ "ERROR message: " + e.getMessage() + "\n";
+				return internalServerError(errorMessage);
+			}
+			return ok(index.render(pwd, fileLists));
+>>>>>>> 891545dc451b84c3a79a9bf9cee4f106eb575c0c
 		}
 	}
 
